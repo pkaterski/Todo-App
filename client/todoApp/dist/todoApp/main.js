@@ -133,6 +133,28 @@ var AppModule = /** @class */ (function () {
 
 /***/ }),
 
+/***/ "./src/app/todos/todo.model.ts":
+/*!*************************************!*\
+  !*** ./src/app/todos/todo.model.ts ***!
+  \*************************************/
+/*! exports provided: Todo */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Todo", function() { return Todo; });
+var Todo = /** @class */ (function () {
+    function Todo(todo, isDone) {
+        this.todo = todo;
+        this.isDone = isDone;
+    }
+    return Todo;
+}());
+
+
+
+/***/ }),
+
 /***/ "./src/app/todos/todos.component.css":
 /*!*******************************************!*\
   !*** ./src/app/todos/todos.component.css ***!
@@ -140,7 +162,7 @@ var AppModule = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ""
+module.exports = "h1 {\r\n    margin: 1rem;\r\n}\r\n\r\n.btn {\r\n    border-radius: 0;\r\n    margin: .1rem;\r\n}\r\n\r\n.list-group {\r\n    margin-bottom: 1rem;\r\n}\r\n\r\n.list-group-item {\r\n    border-radius: 0;\r\n}\r\n\r\n.not-last {\r\n    border-bottom: none;\r\n}"
 
 /***/ }),
 
@@ -151,7 +173,7 @@ module.exports = ""
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"add-todo-form text-center\">\n  <h1>Add Todo</h1>\n  <div class=\"form-group\">\n    <input type=\"text\" class=\"form-control\" placeholder=\"Add Todo...\" autofocus>\n    <br>\n    <button class=\"btn btn-primary btn-block\">Create</button>\n  </div>\n</div>\n\n<hr>\n\n<div class=\"todo-list\" *ngFor=\"let todo of todos\">\n  <div class=\"row\">\n    <div class=\"col-md-1\">\n      <input type=\"checkbox\" [checked]=\"todo.isDone\">\n    </div>\n    <div class=\"col-md-7\">\n      {{ todo.todo }}\n    </div>\n    <div class=\"col-md-4\">\n      <input type=\"button\" class=\"btn btn-success float-right\" value=\"Edit\">\n      <input type=\"button\" class=\"btn btn-danger float-right\" value=\"Delete\">\n    </div>\n  </div>\n</div>"
+module.exports = "<div class=\"add-todo-form text-center\">\n  <h1>Add Todo</h1>\n  <div class=\"form-group\">\n    <input type=\"text\" class=\"form-control\" placeholder=\"Add Todo...\" autofocus #todoInput>\n    <br>\n    <button class=\"btn btn-primary btn-block\" (click)=\"onCreate()\">Create</button>\n  </div>\n</div>\n\n\n<ul class=\"list-group\">\n  <div class=\"todo-list\" *ngFor=\"let todo of todos; let i = index\">\n    <li class=\"list-group-item\" [ngClass]=\"{'not-last': i != todos.length - 1}\">\n      <div class=\"row\">\n    <div class=\"col-md-1\">\n      <input type=\"checkbox\" [checked]=\"todo.isDone\">\n    </div>\n    <div class=\"col-md-7\">\n      {{ todo.todo }}\n    </div>\n    <div class=\"col-md-4\">\n      <input type=\"button\" class=\"btn btn-outline-success float-right\" value=\"Edit\">\n      <input type=\"button\" class=\"btn btn-outline-danger float-right\" (click)=\"onDelete(i)\" value=\"Delete\">\n    </div>\n  </div>\n    </li>\n  </div>\n</ul>\n  "
 
 /***/ }),
 
@@ -167,6 +189,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TodosComponent", function() { return TodosComponent; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var _todos_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./todos.service */ "./src/app/todos/todos.service.ts");
+/* harmony import */ var _todo_model__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./todo.model */ "./src/app/todos/todo.model.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -178,6 +201,7 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 };
 
 
+
 var TodosComponent = /** @class */ (function () {
     function TodosComponent(todoService) {
         this.todoService = todoService;
@@ -187,6 +211,21 @@ var TodosComponent = /** @class */ (function () {
         this.todoService.todosChanged.subscribe(function (todos) { return _this.todos = todos; });
         this.todoService.fetchTodos();
     };
+    TodosComponent.prototype.onCreate = function () {
+        if (!this.todoInput.nativeElement.value) {
+            alert('add text');
+        }
+        else {
+            this.todoService.addTodo(new _todo_model__WEBPACK_IMPORTED_MODULE_2__["Todo"](this.todoInput.nativeElement.value, false));
+        }
+    };
+    TodosComponent.prototype.onDelete = function (id) {
+        this.todoService.deleteTodo(id);
+    };
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChild"])('todoInput'),
+        __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"])
+    ], TodosComponent.prototype, "todoInput", void 0);
     TodosComponent = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
             selector: 'app-todos',
@@ -238,6 +277,18 @@ var TodoService = /** @class */ (function () {
     TodoService.prototype.setTodos = function (todos) {
         this.todos = todos;
         this.todosChanged.next(this.todos.slice());
+    };
+    TodoService.prototype.addTodo = function (todo) {
+        var _this = this;
+        this.todos.push(todo);
+        this.todosChanged.next(this.todos);
+        this.http.post('/api/v1/todos', todo).subscribe(function () { return _this.fetchTodos(); });
+    };
+    TodoService.prototype.deleteTodo = function (id) {
+        var _this = this;
+        this.http.delete("/api/v1/todos/" + this.todos[id]._id).subscribe(function () { return _this.fetchTodos(); });
+        this.todos.splice(id, 1);
+        this.todosChanged.next(this.todos);
     };
     TodoService.prototype.fetchTodos = function () {
         var _this = this;

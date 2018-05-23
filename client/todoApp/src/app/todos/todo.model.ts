@@ -3,8 +3,7 @@ export class Todo {
     public todo: string;
     public isDone: Boolean;
 
-    constructor (_id:string, todo: string, isDone: Boolean) {
-        this._id = _id;
+    constructor (todo: string, isDone: Boolean) {
         this.todo = todo;
         this.isDone = isDone;
     }

@@ -41,7 +41,7 @@ router.get('/todos/:id', (req, res) => {
 
 router.post('/todos', (req, res) => {
     if (!req.body.todo) res.send('Create Todo: No Todo Provided!');
-    else if (!req.body.isDone) res.send('Create Todo: No Todo Status Provided!');
+    else if (!(req.body.isDone + '')) res.send('Create Todo: No Todo Status Provided!');
     else {
         var newTodo = Todo({
             todo: req.body.todo,
@@ -83,17 +83,17 @@ router.put('/todos', (req, res) => {
     }
 });
 
-router.delete('/todo', (req, res) => {
-    if (!req.body.id) res.send('Delete Todo: No ID Provided!');
+router.delete('/todos/:id', (req, res) => {
+    if (!req.params.id) res.send('Delete Todo: No ID Provided!');
     else {
-        Todo.findById(req.body.id, (err, result) => {
+        Todo.findById(req.params.id, (err, result) => {
             if (result) {
-                Todo.findByIdAndRemove(req.body.id, (err) => {
+                Todo.findByIdAndRemove(req.params.id, (err) => {
                     if (err) {
                         res.send('Delete Todo: An Error Occured!');
                         console.log(err);
                     }
-                    else res.send('Delete Todo: Success');
+                    else res.send({"OK":"true"})
                 });
             } else {
                 res.send('Delete Todo: No Such Todo!');

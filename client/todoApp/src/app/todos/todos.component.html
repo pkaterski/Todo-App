@@ -1,16 +1,17 @@
 <div class="add-todo-form text-center">
   <h1>Add Todo</h1>
   <div class="form-group">
-    <input type="text" class="form-control" placeholder="Add Todo..." autofocus>
+    <input type="text" class="form-control" placeholder="Add Todo..." autofocus #todoInput>
     <br>
-    <button class="btn btn-primary btn-block">Create</button>
+    <button class="btn btn-primary btn-block" (click)="onCreate()">Create</button>
   </div>
 </div>
 
-<hr>
 
-<div class="todo-list" *ngFor="let todo of todos">
-  <div class="row">
+<ul class="list-group">
+  <div class="todo-list" *ngFor="let todo of todos; let i = index">
+    <li class="list-group-item" [ngClass]="{'not-last': i != todos.length - 1}">
+      <div class="row">
     <div class="col-md-1">
       <input type="checkbox" [checked]="todo.isDone">
     </div>
@@ -18,8 +19,11 @@
       {{ todo.todo }}
     </div>
     <div class="col-md-4">
-      <input type="button" class="btn btn-success float-right" value="Edit">
-      <input type="button" class="btn btn-danger float-right" value="Delete">
+      <input type="button" class="btn btn-outline-success float-right" value="Edit">
+      <input type="button" class="btn btn-outline-danger float-right" (click)="onDelete(i)" value="Delete">
     </div>
   </div>
-</div>
+    </li>
+  </div>
+</ul>
+  
