@@ -144,9 +144,10 @@ var AppModule = /** @class */ (function () {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Todo", function() { return Todo; });
 var Todo = /** @class */ (function () {
-    function Todo(todo, isDone) {
+    function Todo(todo, isDone, _id) {
         this.todo = todo;
         this.isDone = isDone;
+        this._id = _id;
     }
     return Todo;
 }());
@@ -173,7 +174,7 @@ module.exports = "h1 {\r\n    margin: 1rem;\r\n}\r\n\r\n.btn {\r\n    border-rad
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"add-todo-form text-center\">\n  <h1>Add Todo</h1>\n  <div class=\"form-group\">\n    <input type=\"text\" class=\"form-control\" placeholder=\"Add Todo...\" autofocus #todoInput>\n    <br>\n    <button class=\"btn btn-primary btn-block\" (click)=\"onCreate()\">Create</button>\n  </div>\n</div>\n\n\n<ul class=\"list-group\">\n  <div class=\"todo-list\" *ngFor=\"let todo of todos; let i = index\">\n    <li class=\"list-group-item\" [ngClass]=\"{'not-last': i != todos.length - 1}\">\n      <div class=\"row\">\n    <div class=\"col-md-1\">\n      <input type=\"checkbox\" [checked]=\"todo.isDone\">\n    </div>\n    <div class=\"col-md-7\">\n      {{ todo.todo }}\n    </div>\n    <div class=\"col-md-4\">\n      <input type=\"button\" class=\"btn btn-outline-success float-right\" value=\"Edit\">\n      <input type=\"button\" class=\"btn btn-outline-danger float-right\" (click)=\"onDelete(i)\" value=\"Delete\">\n    </div>\n  </div>\n    </li>\n  </div>\n</ul>\n  "
+module.exports = "<div class=\"add-todo-form text-center\">\n  <h1>Add Todo</h1>\n  <div class=\"form-group\">\n    <input type=\"text\" class=\"form-control\" placeholder=\"Add Todo...\" autofocus #todoInput>\n    <br>\n    <button class=\"btn btn-primary btn-block\" (click)=\"onCreate()\">Create</button>\n  </div>\n</div>\n\n\n<ul class=\"list-group\">\n  <div class=\"todo-list\" *ngFor=\"let todo of todos; let i = index\">\n    <li class=\"list-group-item\" [ngClass]=\"{'not-last': i != todos.length - 1}\">\n      <div class=\"row\">\n    <div class=\"col-md-1\">\n      <input type=\"checkbox\" [checked]=\"todo.isDone\" (click)=\"onUpdateStatus(i)\">\n    </div>\n    <div class=\"col-md-8\">\n      <div *ngIf=\"!editMode || editedItem != i; else editor\">\n        {{ todo.todo }}\n      </div>\n      <ng-template #editor>\n        <div class=\"row\">\n          <div class=\"col-md-10\">\n            <input type=\"text\" [value]=\"todo.todo\" class=\"form-control\" (keypress)=\"onUpdateText($event)\">\n          </div>\n          <div class=\"col-md-2\">\n            <button class=\"btn btn-warning float-right\" (click)=\"editMode = false\">Cancel</button>\n          </div>\n        </div>\n      </ng-template>\n    </div>\n    <div class=\"col-md-3\">\n      <input type=\"button\" class=\"btn btn-outline-danger float-right\" (click)=\"onDelete(i)\" value=\"Delete\">\n      <input type=\"button\" class=\"btn btn-outline-success float-right\" (click)=\"onEdit(i)\" value=\"Edit\" [disabled]=\"editMode\">\n    </div>\n  </div>\n    </li>\n  </div>\n</ul>\n  "
 
 /***/ }),
 
@@ -205,6 +206,7 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 var TodosComponent = /** @class */ (function () {
     function TodosComponent(todoService) {
         this.todoService = todoService;
+        this.editMode = false;
     }
     TodosComponent.prototype.ngOnInit = function () {
         var _this = this;
@@ -217,10 +219,32 @@ var TodosComponent = /** @class */ (function () {
         }
         else {
             this.todoService.addTodo(new _todo_model__WEBPACK_IMPORTED_MODULE_2__["Todo"](this.todoInput.nativeElement.value, false));
+            this.todoInput.nativeElement.value = '';
         }
     };
-    TodosComponent.prototype.onDelete = function (id) {
-        this.todoService.deleteTodo(id);
+    TodosComponent.prototype.onDelete = function (index) {
+        if (confirm('Are you shure you want to delete "' + this.todos[index].todo + '"?'))
+            this.todoService.deleteTodo(index);
+    };
+    TodosComponent.prototype.onUpdateStatus = function (index) {
+        var newTodo = new _todo_model__WEBPACK_IMPORTED_MODULE_2__["Todo"](this.todos[index].todo, !this.todos[index].isDone, this.todos[index]._id);
+        this.todoService.updateTodo(index, newTodo);
+    };
+    TodosComponent.prototype.onEdit = function (index) {
+        this.editMode = true;
+        this.editedItem = index;
+    };
+    TodosComponent.prototype.onUpdateText = function (event) {
+        if (event.which === 13) {
+            if (event.target.value) {
+                var newTodo = new _todo_model__WEBPACK_IMPORTED_MODULE_2__["Todo"](event.target.value, this.todos[this.editedItem].isDone, this.todos[this.editedItem]._id);
+                this.todoService.updateTodo(this.editedItem, newTodo);
+                this.editMode = false;
+            }
+            else {
+                this.editMode = false;
+            }
+        }
     };
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChild"])('todoInput'),
@@ -254,6 +278,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
+var __assign = (undefined && undefined.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -284,10 +316,16 @@ var TodoService = /** @class */ (function () {
         this.todosChanged.next(this.todos);
         this.http.post('/api/v1/todos', todo).subscribe(function () { return _this.fetchTodos(); });
     };
-    TodoService.prototype.deleteTodo = function (id) {
+    TodoService.prototype.deleteTodo = function (index) {
         var _this = this;
-        this.http.delete("/api/v1/todos/" + this.todos[id]._id).subscribe(function () { return _this.fetchTodos(); });
-        this.todos.splice(id, 1);
+        this.http.delete("/api/v1/todos/" + this.todos[index]._id).subscribe(function () { return _this.fetchTodos(); });
+        this.todos.splice(index, 1);
+        this.todosChanged.next(this.todos);
+    };
+    TodoService.prototype.updateTodo = function (index, newTodo) {
+        var _this = this;
+        this.http.put('/api/v1/todos', __assign({}, newTodo, { id: this.todos[index]._id })).subscribe(function () { return _this.fetchTodos(); });
+        this.todos[index] = newTodo;
         this.todosChanged.next(this.todos);
     };
     TodoService.prototype.fetchTodos = function () {

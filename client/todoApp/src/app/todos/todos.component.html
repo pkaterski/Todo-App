@@ -13,14 +13,26 @@
     <li class="list-group-item" [ngClass]="{'not-last': i != todos.length - 1}">
       <div class="row">
     <div class="col-md-1">
-      <input type="checkbox" [checked]="todo.isDone">
+      <input type="checkbox" [checked]="todo.isDone" (click)="onUpdateStatus(i)">
     </div>
-    <div class="col-md-7">
-      {{ todo.todo }}
+    <div class="col-md-8">
+      <div *ngIf="!editMode || editedItem != i; else editor">
+        {{ todo.todo }}
+      </div>
+      <ng-template #editor>
+        <div class="row">
+          <div class="col-md-10">
+            <input type="text" [value]="todo.todo" class="form-control" (keypress)="onUpdateText($event)">
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-warning float-right" (click)="editMode = false">Cancel</button>
+          </div>
+        </div>
+      </ng-template>
     </div>
-    <div class="col-md-4">
-      <input type="button" class="btn btn-outline-success float-right" value="Edit">
+    <div class="col-md-3">
       <input type="button" class="btn btn-outline-danger float-right" (click)="onDelete(i)" value="Delete">
+      <input type="button" class="btn btn-outline-success float-right" (click)="onEdit(i)" value="Edit" [disabled]="editMode">
     </div>
   </div>
     </li>

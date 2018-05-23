@@ -27,11 +27,19 @@ export class TodoService {
         );
     }
     
-    deleteTodo(id: number) {
-        this.http.delete(`/api/v1/todos/${this.todos[id]._id}`).subscribe(
+    deleteTodo(index: number) {
+        this.http.delete(`/api/v1/todos/${this.todos[index]._id}`).subscribe(
             () => this.fetchTodos()
         );
-        this.todos.splice(id, 1);
+        this.todos.splice(index, 1);
+        this.todosChanged.next(this.todos);
+    }
+
+    updateTodo(index: number, newTodo: Todo) {       
+        this.http.put('/api/v1/todos', {...newTodo, id: this.todos[index]._id}).subscribe(
+            () => this.fetchTodos()
+        );
+        this.todos[index] = newTodo;
         this.todosChanged.next(this.todos);
     }
 

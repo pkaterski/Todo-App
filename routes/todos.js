@@ -67,7 +67,7 @@ router.put('/todos', (req, res) => {
             if (result) {
                 Todo.findByIdAndUpdate(req.body.id, {
                     todo: req.body.todo || result.todo,
-                    isDone: req.body.isDone || result.isDone
+                    isDone: (req.body.isDone + '') || result.isDone
                 }, (err, result) => {
                     if (err) {
                         res.send('Update Todo: An Error Occured!');
